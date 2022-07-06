@@ -63,34 +63,35 @@
       ) {
         err("No valid signature. (File needs to start with \"WEBVTT\".)")
       }
-
-    /* HEADER */
-    while(lines[linePos] !== undefined) {
-      line = lines[linePos]
-      /* look-ahead */
-      if (line === "") {
-        if ((lines[linePos+1] && lines[linePos+1].indexOf("-->") !== -1 )||
-        (lines[linePos+2] && lines[linePos+2].indexOf("-->") !== -1)) {
-          break
+      linePos++
+      
+      /* HEADER */
+      while(lines[linePos] !== undefined) {
+        line = lines[linePos]
+        /* look-ahead */
+        if (line === "") {
+          if ((lines[linePos+1] && lines[linePos+1].indexOf("-->") !== -1 )||
+          (lines[linePos+2] && lines[linePos+2].indexOf("-->") !== -1)) {
+            break
+          } else {
+            linePos++
+            continue
+          }
         } else {
-          linePos++
-          continue
-        }
-      } else {
-        if ((line.match(/:/g) || []).length !== 1) {
-          err("Metadata header line needs to consist of a name and value separated by a ':' character.")
-          if (line.indexOf("-->") != -1) {
-            err("Cues need to be separated from the Header by a blank line.")
+          if ((line.match(/:/g) || []).length !== 1) {
+            err("Metadata header line needs to consist of a name and value separated by a ':' character.")
+            if (line.indexOf("-->") != -1) {
+              err("Cues need to be separated from the Header by a blank line.")
+              alreadyCollected = true
+            }
+          }
+          if (line.substring(0,6) !== "Region") {
+            err("Metadata headers other than Region are not defined.")
             alreadyCollected = true
           }
+          linePos++
         }
-        if (line.substring(0,6) !== "Region") {
-          err("Metadata headers other than Region are not defined.")
-          alreadyCollected = true
-        }
-        linePos++
       }
-    }
 
       /* CUE LOOP */
       while(lines[linePos] != undefined) {
